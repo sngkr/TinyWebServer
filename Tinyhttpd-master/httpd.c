@@ -92,7 +92,7 @@ void accept_request(void *arg) {
   //   3、判断请求类型存在否
   if (strcasecmp(method, "GET") && strcasecmp(method, "POST")) {
     unimplemented(client);
-    return;
+    return ;
   }
   // 如果是POST请求 调用cgi程序
   if (strcasecmp(method, "POST") == 0) cgi = 1;
@@ -514,7 +514,7 @@ int main(void) {
   int client_sock = -1;
   struct sockaddr_in client_name;
   socklen_t client_name_len = sizeof(client_name);
-  // pthread_t newthread;
+  pthread_t newthread;
   //启动服务，监听，等待连接
   server_sock = startup(&port);
   printf("httpd running on port %d\n", port);
@@ -524,9 +524,10 @@ int main(void) {
     client_sock =
         accept(server_sock, (struct sockaddr *)&client_name, &client_name_len);
     if (client_sock == -1) error_die("accept");
-    accept_request(&client_sock);
-    // if (pthread_create(&newthread , NULL, (void *)accept_request, (void
-    // *)(intptr_t)client_sock) != 0) perror("pthread_create");
+    // accept_request(&client_sock);
+    if (pthread_create(&newthread, NULL, (void *)accept_request,
+                       (void *)(intptr_t)client_sock) != 0)
+      perror("pthread_create");
   }
 
   close(server_sock);
